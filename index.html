@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confidencial — Domain Shortlist</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf9f7;--bg-warm:#f5f3ef;--white:#fff;--text:#1a1a1a;--text-sec:#5c5c5c;--text-muted:#8a8a8a;--border:#e8e5e0;--border-lt:#f0ede8;--accent:#c45d2c;--accent-lt:#f8ece5;--gold:#b8860b;--gold-bg:#fdf8ee;--gold-bdr:#f0e4c8;--silver:#6b7280;--silver-bg:#f3f4f6;--bronze:#92400e;--green:#16a34a;--green-bg:#f0fdf4;--green-bdr:#bbf7d0;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* === LOCK === */
+#lockScreen{position:fixed;inset:0;background:var(--white);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .5s,transform .5s}
+#lockScreen.unlocked{opacity:0;transform:scale(1.02);pointer-events:none}
+.lock-box{text-align:center;max-width:420px;padding:40px}
+.lock-icon{width:64px;height:64px;margin:0 auto 28px;background:var(--bg-warm);border-radius:20px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.lock-icon svg{width:28px;height:28px;color:var(--text-sec)}
+.lock-title{font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;margin-bottom:8px}
+.lock-sub{font-size:14px;color:var(--text-muted);margin-bottom:32px;line-height:1.5}
+.lock-input{width:100%;padding:14px 18px;font-family:inherit;font-size:15px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;transition:all .2s;letter-spacing:2px;margin-bottom:16px}
+.lock-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-lt)}
+.lock-input.error{border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.1);animation:shake .4s}
+.lock-btn{width:100%;padding:14px;font-family:inherit;font-size:15px;font-weight:600;border:none;border-radius:10px;background:var(--text);color:var(--white);cursor:pointer;transition:all .2s}
+.lock-btn:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.lock-err{font-size:13px;color:#ef4444;margin-top:12px;opacity:0;transition:opacity .3s}
+.lock-err.show{opacity:1}
+.lock-foot{margin-top:40px;font-size:11px;color:var(--text-muted);letter-spacing:.5px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-4px)}}
+
+/* === MAIN === */
+#main{opacity:0;transition:opacity .8s .3s}
+#main.show{opacity:1}
+
+.header{background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Fraunces',serif;font-weight:700;font-size:16px}
+.header-text{font-weight:600;font-size:15px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--green-bg);border:1px solid var(--green-bdr);border-radius:100px;font-size:11px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.8px}
+.tag::before{content:'';width:5px;height:5px;background:var(--green);border-radius:50%}
+
+.hero{padding:72px 40px 56px;max-width:760px;margin:0 auto}
+.hero-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2.5px;color:var(--accent);margin-bottom:16px}
+.hero h1{font-family:'Fraunces',Georgia,serif;font-size:clamp(32px,5vw,48px);font-weight:600;line-height:1.15;margin-bottom:16px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero p{font-size:16px;line-height:1.7;color:var(--text-sec);max-width:560px}
+
+.stats{display:flex;gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden;max-width:760px;margin:0 auto 56px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.stats div{flex:1;background:var(--white);padding:20px 24px;text-align:center}
+.stats .n{font-family:'Fraunces',serif;font-size:28px;font-weight:600}
+.stats .l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-top:4px}
+
+.container{max-width:760px;margin:0 auto;padding:0 24px 100px}
+
+.sec{display:flex;align-items:center;gap:14px;margin:52px 0 20px}
+.sec:first-child{margin-top:0}
+.pill{padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap}
+.pill.g{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bdr)}
+.pill.s{background:var(--silver-bg);color:var(--silver);border:1px solid #e5e7eb}
+.pill.n{background:var(--bg-warm);color:var(--text-muted);border:1px solid var(--border)}
+.sec-line{flex:1;height:1px;background:var(--border-lt)}
+
+/* === CARD === */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:10px;display:grid;grid-template-columns:48px 1fr 72px;gap:20px;align-items:start;transition:all .25s}
+.card:hover{border-color:#d4d0ca;box-shadow:0 4px 12px rgba(0,0,0,.06);transform:translateY(-1px)}
+.badge{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:18px;font-weight:600;flex-shrink:0;background:var(--bg-warm);border:1px solid var(--border);color:var(--text-muted)}
+.r1 .badge{background:linear-gradient(135deg,#fef9ee,#fdf0d5);border-color:var(--gold-bdr);color:var(--gold);box-shadow:0 2px 8px rgba(184,134,11,.1)}
+.r2 .badge{background:linear-gradient(135deg,#f8f9fa,#eef0f2);border-color:#d1d5db;color:var(--silver)}
+.r3 .badge{background:linear-gradient(135deg,#fef7ed,#fef0db);border-color:#fde1b0;color:var(--bronze)}
+.info{min-width:0}
+.name{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:600;line-height:1.2}
+.tld{color:var(--accent);font-weight:500}
+.meaning{display:inline-block;margin-top:6px;padding:3px 10px;background:var(--accent-lt);border-radius:6px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.3px}
+.desc{font-size:13.5px;color:var(--text-sec);line-height:1.65;margin-top:10px}
+.sc{text-align:center;flex-shrink:0;padding-top:2px}
+.sc .v{font-family:'Fraunces',serif;font-size:32px;font-weight:600;line-height:1}
+.dots{display:flex;gap:3px;margin-top:8px;justify-content:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border)}
+.dot.f{background:var(--accent)}
+
+/* Verdict */
+.verdict{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:32px;margin-top:56px}
+.verdict h3{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin-bottom:20px}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vitem{padding:16px;background:var(--bg-warm);border-radius:10px;border:1px solid var(--border-lt)}
+.vlabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px}
+.vval{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--accent)}
+.vnote{font-size:12px;color:var(--text-sec);margin-top:3px}
+.footer{text-align:center;padding:32px;font-size:12px;color:var(--text-muted);margin-top:40px;border-top:1px solid var(--border-lt)}
+
+@media(max-width:640px){
+  .header{padding:16px 20px}
+  .hero{padding:48px 24px 40px}
+  .stats{flex-direction:column;margin:0 24px 40px}
+  .card{grid-template-columns:40px 1fr;padding:20px;gap:14px}
+  .sc{grid-column:1/-1;display:flex;align-items:center;gap:12px;border-top:1px solid var(--border-lt);padding-top:14px}
+  .dots{margin-top:0}
+  .badge{width:40px;height:40px;font-size:15px;border-radius:10px}
+  .name{font-size:20px}
+  .vgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg></div>
+    <div class="lock-title">Documento Confidencial</div>
+    <div class="lock-sub">Este documento está protegido.<br>Introduza a palavra-passe para aceder.</div>
+    <input type="password" id="pw" class="lock-input" placeholder="Palavra-passe" autocomplete="off" autofocus>
+    <button class="lock-btn" onclick="go()">Desbloquear</button>
+    <div class="lock-err" id="err">Palavra-passe incorreta.</div>
+    <div class="lock-foot">🔒 Documento encriptado</div>
+  </div>
+</div>
+
+<div id="main">
+<div class="header">
+  <div class="header-left"><div class="header-logo">B</div><div class="header-text">Domain Shortlist</div></div>
+  <div class="tag">17 Disponíveis</div>
+</div>
+
+<div class="hero">
+  <div class="hero-label">Confidencial — Fevereiro 2026</div>
+  <h1>Domínios para a plataforma de <em>construção</em></h1>
+  <p>Marketplace B2B que liga empreiteiras a técnicos verificados. Gestão de contratos, pagamentos e compliance — tudo automático. Domínios .com disponíveis, ordenados por relevância.</p>
+</div>
+
+<div class="stats">
+  <div><div class="n">500</div><div class="l">Testados</div></div>
+  <div><div class="n">164</div><div class="l">Disponíveis</div></div>
+  <div><div class="n">17</div><div class="l">Shortlist</div></div>
+  <div><div class="n">9.5</div><div class="l">Top Score</div></div>
+</div>
+
+<div class="container">
+
+<div class="sec"><span class="pill g">★ Top 5 — Recomendados</span><div class="sec-line"></div></div>
+
+<div class="card r1"><div class="badge">1</div><div class="info"><div class="name">obraboss<span class="tld">.com</span></div><div class="meaning">Obra + Boss → Quem manda na obra</div><div class="desc">"O chefe da tua obra." A plataforma que comanda e organiza tudo — encontra equipa, gere contratos, paga. Tu és o boss, nós executamos. Curto, forte, memorável. Funciona em PT e EN.</div></div><div class="sc"><div class="v">9.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div></div></div>
+
+<div class="card r2"><div class="badge">2</div><div class="info"><div class="name">mestreja<span class="tld">.com</span></div><div class="meaning">Mestre + Já → O profissional, agora</div><div class="desc">"Mestre, já!" Precisas de um mestre de obra? Já. Agora. Velocidade e a promessa central: encontrar o profissional certo em tempo real. 100% português, fácil de dizer ao telefone.</div></div><div class="sc"><div class="v">9.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div></div></div>
+
+<div class="card r3"><div class="badge">3</div><div class="info"><div class="name">contrataja<span class="tld">.com</span></div><div class="meaning">Contrata + Já → Ação imediata</div><div class="desc">"Contrata já." Literalmente o que a plataforma faz — contratar técnicos verificados de imediato. Call-to-action puro. Qualquer empreiteiro percebe à primeira.</div></div><div class="sc"><div class="v">9.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">4</div><div class="info"><div class="name">maxobra<span class="tld">.com</span></div><div class="meaning">Max + Obra → Máximo rendimento</div><div class="desc">"Máxima obra." Performance máxima na construção. Sugere escala, eficiência, o melhor resultado. Curto, soa premium, fácil em qualquer língua.</div></div><div class="sc"><div class="v">8.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">5</div><div class="info"><div class="name">equipago<span class="tld">.com</span></div><div class="meaning">Equipa + Go → Equipa pronta</div><div class="desc">"Equipa, go!" A equipa que precisas, pronta a arrancar. Velocidade e mobilidade. Startup tech vibe, dinâmico. Perfeito para app mobile.</div></div><div class="sc"><div class="v">8.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="sec"><span class="pill s">Tier 2 — Fortes</span><div class="sec-line"></div></div>
+
+<div class="card"><div class="badge">6</div><div class="info"><div class="name">obraup<span class="tld">.com</span></div><div class="meaning">Obra + Up → Elevar a construção</div><div class="desc">"Obra up." Eleva a tua obra ao próximo nível. Apenas 6 caracteres — raríssimo .com tão curto. Moderno, startup, growth mindset.</div></div><div class="sc"><div class="v">8.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">7</div><div class="info"><div class="name">primeobra<span class="tld">.com</span></div><div class="meaning">Prime + Obra → Qualidade premium</div><div class="desc">"Obra prime." Serviço premium, profissionais de primeira. Evoca Amazon Prime — qualidade garantida, rapidez, confiança. Posicionamento high-end.</div></div><div class="sc"><div class="v">8.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">8</div><div class="info"><div class="name">encontrapro<span class="tld">.com</span></div><div class="meaning">Encontra + Pro → Achar o profissional</div><div class="desc">"Encontra o profissional." Descreve exatamente o que o utilizador faz. SEO-friendly — pesquisa "encontrar profissional construção" chega naturalmente.</div></div><div class="sc"><div class="v">8.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">9</div><div class="info"><div class="name">empreitaja<span class="tld">.com</span></div><div class="meaning">Empreita + Já → Empreitada imediata</div><div class="desc">"Empreita já." Fala diretamente ao core business — empreitadas. O empreiteiro reconhece-se imediatamente. Nicho perfeito, linguagem do setor.</div></div><div class="sc"><div class="v">8.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">10</div><div class="info"><div class="name">reboko<span class="tld">.com</span></div><div class="meaning">Reboco com K → Acabamento perfeito</div><div class="desc">Reboco com K — o acabamento que transforma parede bruta em algo sólido. A plataforma é o "reboco" que dá acabamento profissional à contratação. Inventado, brandável, único.</div></div><div class="sc"><div class="v">8.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">11</div><div class="info"><div class="name">myprew<span class="tld">.com</span></div><div class="meaning">My + Crew → A minha equipa</div><div class="desc">"My crew" com ortografia única. Curto (6 chars), brandável, domínio raro. Internacional por natureza. Funciona como marca global de staffing.</div></div><div class="sc"><div class="v">7.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="sec"><span class="pill n">Tier 3 — Interessantes</span><div class="sec-line"></div></div>
+
+<div class="card"><div class="badge">12</div><div class="info"><div class="name">obrachef<span class="tld">.com</span></div><div class="meaning">Obra + Chef → O maestro da construção</div><div class="desc">"O chef da obra." Quem coordena, quem manda, quem tem a receita certa. A plataforma como "chef" que junta os ingredientes — técnicos + projeto.</div></div><div class="sc"><div class="v">7.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">13</div><div class="info"><div class="name">equipanet<span class="tld">.com</span></div><div class="meaning">Equipa + Net → Equipas online</div><div class="desc">"Equipa na net." Rede de equipas online. Direto, funcional, fácil de perceber. Bom para SEO português. O público-alvo entende instantaneamente.</div></div><div class="sc"><div class="v">7.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">14</div><div class="info"><div class="name">approvedcrew<span class="tld">.com</span></div><div class="meaning">Approved + Crew → Confiança garantida</div><div class="desc">"Equipa aprovada." O ângulo da confiança — técnicos verificados e aprovados. Diferenciador forte vs. mercado informal. Internacional.</div></div><div class="sc"><div class="v">7.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">15</div><div class="info"><div class="name">obrahoje<span class="tld">.com</span></div><div class="meaning">Obra + Hoje → Trabalho imediato</div><div class="desc">"Obra hoje." Urgência máxima. Precisas de obra hoje? Está aqui. Perfeito para matching rápido. Muito português, muito direto, zero ambiguidade.</div></div><div class="sc"><div class="v">7.5</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">16</div><div class="info"><div class="name">craftchief<span class="tld">.com</span></div><div class="meaning">Craft + Chief → Líder do ofício</div><div class="desc">"Chefe do ofício." Posiciona a plataforma como líder na gestão de técnicos qualificados. Soa premium, profissional. 100% inglês — expansão internacional.</div></div><div class="sc"><div class="v">7.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="card"><div class="badge">17</div><div class="info"><div class="name">obraplanet<span class="tld">.com</span></div><div class="meaning">Obra + Planet → Universo da construção</div><div class="desc">"Planeta obra." Todo o universo da construção num só lugar. Marketplace completo. Aspiracional, sugere escala e ambição global.</div></div><div class="sc"><div class="v">7.0</div><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div></div>
+
+<div class="verdict">
+  <h3>🎯 Veredicto por estratégia</h3>
+  <div class="vgrid">
+    <div class="vitem"><div class="vlabel">Portugal primeiro</div><div class="vval">mestreja.com</div><div class="vnote">ou contrataja.com — linguagem nativa do setor</div></div>
+    <div class="vitem"><div class="vlabel">Marca forte + Expansão</div><div class="vval">obraboss.com</div><div class="vnote">ou obraup.com — funciona em PT e EN</div></div>
+    <div class="vitem"><div class="vlabel">Premium / Qualidade</div><div class="vval">primeobra.com</div><div class="vnote">ou maxobra.com — posicionamento high-end</div></div>
+    <div class="vitem"><div class="vlabel">Confiança / Compliance</div><div class="vval">approvedcrew.com</div><div class="vnote">ou reboko.com — verificação como diferencial</div></div>
+  </div>
+</div>
+
+<div class="footer">Todos os domínios .com confirmados disponíveis via IP2WHOIS — <strong>Fevereiro 2026</strong><br>Documento confidencial. Não partilhar sem autorização.</div>
+
+</div>
+</div>
+
+<script>
+const P=atob('QnIxY2skTW9ydGFyIzIwMjYhUHg=');
+function go(){
+  const i=document.getElementById('pw');
+  if(i.value===P){
+    document.getElementById('lockScreen').classList.add('unlocked');
+    document.getElementById('main').classList.add('show');
+    setTimeout(()=>document.getElementById('lockScreen').style.display='none',600);
+  }else{
+    i.classList.add('error');
+    document.getElementById('err').classList.add('show');
+    setTimeout(()=>i.classList.remove('error'),500);
+    setTimeout(()=>document.getElementById('err').classList.remove('show'),3000);
+  }
+}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+</script>
+</body>
+</html>
