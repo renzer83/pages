@@ -1,588 +1,774 @@
-import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Menu, X, Coffee, Star, ArrowRight, Truck, ShieldCheck, Award, Flame, CheckCircle, MessageCircle, Zap } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website do Café - Especialidade e Equipamentos</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cafe: {
+                            dark: '#231815',
+                            accent: '#C0752B',
+                            light: '#D4A373',
+                            bg: '#FDFBF7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
-// --- MOCK DATA ---
-const featuredProducts = [
-  {
-    id: 1,
-    name: 'Lote Arábica Premium',
-    category: 'Café em Grão',
-    price: 18.50,
-    rating: 5,
-    badge: 'Mais Vendido',
-    stock: 12,
-    image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: '100% Arábica de torra média. Notas de chocolate negro e frutos vermelhos.'
-  },
-  {
-    id: 2,
-    name: 'Lote Expresso Lusitano',
-    category: 'Café em Grão',
-    price: 14.90,
-    rating: 4.8,
-    badge: 'Recomendado',
-    stock: 4,
-    image: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: 'O clássico blend português. Encorpado, creme denso e final persistente.'
-  },
-  {
-    id: 3,
-    name: 'La Marzocco Linea Micra',
-    category: 'Máquinas',
-    price: 3250.00,
-    rating: 5,
-    stock: 2,
-    image: 'https://images.unsplash.com/photo-1585494156145-1c60a4fb4526?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: 'A performance de uma máquina de café comercial num formato compacto para website.'
-  },
-  {
-    id: 4,
-    name: 'Moinho Eureka Mignon',
-    category: 'Acessórios',
-    price: 429.00,
-    rating: 4.9,
-    badge: 'Novidade',
-    stock: 8,
-    image: 'https://images.unsplash.com/photo-1620088922256-42d4a04910eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    description: 'Moinho on-demand silencioso com ajuste micrométrico para o expresso perfeito.'
-  }
-];
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-export default function App() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [toast, setToast] = useState(null);
+    <!-- Three.js para o 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  // Efeito para mudar o fundo da navbar ao fazer scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 30);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-    setIsCartOpen(true);
-    setToast(`✨ ${product.name} adicionado!`);
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
-  const freeShippingThreshold = 40;
-  const progressToFreeShipping = Math.min((cartTotal / freeShippingThreshold) * 100, 100);
-  const amountLeftForFreeShipping = Math.max(freeShippingThreshold - cartTotal, 0);
-
-  const customStyles = `
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-    @keyframes marquee {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    @keyframes bg-zoom {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.1); }
-    }
-    @keyframes slideInRight {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideUpFade {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-float { animation: float 3s ease-in-out infinite; }
-    .animate-marquee { animation: marquee 20s linear infinite; }
-    .animate-bg-zoom { animation: bg-zoom 20s ease-in-out infinite alternate; }
-    .animate-slide-up { animation: slideUpFade 0.6s ease-out forwards; opacity: 0; }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-  `;
-
-  return (
-    <div className="min-h-screen font-sans text-stone-900 bg-[#FDFBF7] selection:bg-[#C0752B] selection:text-white">
-      <style>{customStyles}</style>
-
-      {/* --- TOP ANNOUNCEMENT BAR --- */}
-      <div className="bg-[#C0752B] text-white text-xs md:text-sm font-bold tracking-widest uppercase overflow-hidden whitespace-nowrap py-2.5 relative z-50">
-        <div className="inline-block animate-marquee">
-          <span className="mx-6">🔥 TORRA FRESCA SEMANAL</span> • 
-          <span className="mx-6">🚚 PORTES GRÁTIS EM COMPRAS {'>'} 40€</span> • 
-          <span className="mx-6">☕ 10% DESCONTO NA 1ª COMPRA: BEMVINDO</span> • 
-          <span className="mx-6">🔥 TORRA FRESCA SEMANAL</span> • 
-          <span className="mx-6">🚚 PORTES GRÁTIS EM COMPRAS {'>'} 40€</span> • 
-          <span className="mx-6">☕ 10% DESCONTO NA 1ª COMPRA: BEMVINDO</span>
-        </div>
-      </div>
-
-      {/* --- NAVBAR --- */}
-      <nav className={`fixed w-full z-40 transition-all duration-500 ${scrolled ? 'bg-[#231815]/95 backdrop-blur-md shadow-2xl py-3 top-0' : 'bg-transparent py-6 top-10'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <Coffee className={`h-8 w-8 transition-colors duration-300 text-[#C0752B]`} />
-              <span className={`text-2xl font-black tracking-tighter transition-colors duration-300 text-white`}>
-                website DO CAFÉ
-              </span>
-            </div>
-
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#" className="font-semibold text-stone-200 hover:text-[#C0752B] transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#C0752B] hover:after:w-full after:transition-all after:duration-300 pb-1">Loja</a>
-              <a href="#" className="font-semibold text-stone-200 hover:text-[#C0752B] transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#C0752B] hover:after:w-full after:transition-all after:duration-300 pb-1">Máquinas</a>
-              <a href="#" className="font-semibold text-stone-200 hover:text-[#C0752B] transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#C0752B] hover:after:w-full after:transition-all after:duration-300 pb-1">Sobre Nós</a>
-            </div>
-
-            {/* Icons */}
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => setIsCartOpen(!isCartOpen)}
-                className="relative p-2 rounded-full hover:bg-white/10 transition-colors text-white group"
-              >
-                <ShoppingBag className="h-6 w-6 group-hover:scale-110 transition-transform" />
-                {cart.length > 0 && (
-                  <span className="absolute top-0 right-0 bg-[#C0752B] text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1 -translate-y-1 shadow-lg border-2 border-[#231815]">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
-              
-              {/* Mobile Menu Toggle */}
-              <button 
-                className="md:hidden p-2 rounded-full hover:bg-white/10 transition-colors text-white"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Dropdown */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-30 bg-[#231815]/98 backdrop-blur-xl text-white pt-32 px-6 flex flex-col space-y-8 md:hidden animate-[slideInRight_0.3s_ease-out]">
-          <a href="#" className="text-3xl font-bold hover:text-[#C0752B] flex items-center gap-4"><Coffee className="h-6 w-6"/> Cafés em Grão</a>
-          <a href="#" className="text-3xl font-bold hover:text-[#C0752B] flex items-center gap-4"><Zap className="h-6 w-6"/> Máquinas</a>
-          <a href="#" className="text-3xl font-bold hover:text-[#C0752B] flex items-center gap-4"><ShieldCheck className="h-6 w-6"/> Acessórios</a>
-        </div>
-      )}
-
-      {/* --- CART DRAWER (Side Menu for Gamification) --- */}
-      {isCartOpen && (
-        <>
-          <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-[0_0_50px_rgba(0,0,0,0.3)] z-50 flex flex-col animate-[slideInRight_0.4s_cubic-bezier(0.16,1,0.3,1)]">
-            <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-[#FDFBF7]">
-              <h3 className="font-extrabold text-2xl text-[#231815] flex items-center gap-2">
-                <ShoppingBag className="h-6 w-6 text-[#C0752B]" /> O seu Carrinho
-              </h3>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:bg-stone-200 rounded-full transition-colors"><X className="h-6 w-6 text-stone-500"/></button>
-            </div>
-
-            {/* Free Shipping Progress */}
-            <div className="p-6 bg-stone-50 border-b border-stone-200 shadow-inner">
-              <div className="flex justify-between text-sm font-bold mb-3">
-                <span className="text-[#231815]">Portes Grátis</span>
-                {amountLeftForFreeShipping > 0 ? (
-                  <span className="text-[#C0752B]">Faltam {amountLeftForFreeShipping.toFixed(2)}€</span>
-                ) : (
-                  <span className="text-green-600 flex items-center gap-1"><CheckCircle className="h-4 w-4"/> Desbloqueado!</span>
-                )}
-              </div>
-              <div className="w-full bg-stone-200 rounded-full h-3 overflow-hidden shadow-inner">
-                <div 
-                  className="bg-[#C0752B] h-3 rounded-full transition-all duration-1000 ease-out relative" 
-                  style={{ width: `${progressToFreeShipping}%` }}
-                >
-                  <div className="absolute inset-0 bg-white/20 w-full h-full animate-[marquee_1s_linear_infinite]" style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }}></div>
-                </div>
-              </div>
-            </div>
-
-            {cart.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-stone-400 p-8">
-                <ShoppingBag className="h-16 w-16 mb-4 opacity-50" />
-                <p className="text-lg font-medium">O carrinho está vazio.</p>
-                <button onClick={() => setIsCartOpen(false)} className="mt-6 text-[#C0752B] font-bold hover:underline">Continuar a comprar</button>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar">
-                {cart.map((item, index) => (
-                  <div key={index} className="flex gap-4 items-center bg-white p-3 rounded-xl shadow-sm border border-stone-100">
-                    <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg shadow-sm" />
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-[#231815] line-clamp-2 leading-tight mb-1">{item.name}</p>
-                      <p className="text-sm font-black text-[#C0752B]">{item.price.toFixed(2)} €</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {cart.length > 0 && (
-              <div className="p-6 border-t border-stone-200 bg-[#FDFBF7] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-                <div className="flex justify-between font-black mb-6 text-xl">
-                  <span className="text-stone-600">Total:</span>
-                  <span className="text-[#231815] text-3xl">{cartTotal.toFixed(2)} €</span>
-                </div>
-                <button className="w-full bg-[#231815] text-white py-4 rounded-xl hover:bg-[#C0752B] transition-all transform hover:scale-[1.02] shadow-xl font-bold text-lg flex justify-center items-center gap-3 group">
-                  Finalizar Compra <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="fixed inset-0 bg-[#231815]/60 backdrop-blur-sm z-40 transition-opacity" onClick={() => setIsCartOpen(false)}></div>
-        </>
-      )}
-
-      {/* --- HERO SECTION --- */}
-      <div className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Zoom Animation */}
-        <div className="absolute inset-0">
-          <img 
-            src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
-            alt="Café a ser tirado" 
-            className="w-full h-full object-cover animate-bg-zoom"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#231815]/90 via-[#231815]/60 to-[#231815]/30"></div>
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start mt-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#C0752B]/20 border border-[#C0752B]/50 text-[#D4A373] text-sm font-bold tracking-widest uppercase mb-8 animate-slide-up backdrop-blur-sm" style={{ animationDelay: '0.1s' }}>
-            <Zap className="h-4 w-4" /> Nova Colheita Disponível
-          </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.05] max-w-4xl animate-slide-up tracking-tight" style={{ animationDelay: '0.2s' }}>
-            O verdadeiro sabor do <span className="text-[#C0752B] relative inline-block">expresso<svg className="absolute w-full h-4 -bottom-2 left-0 text-[#C0752B]" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 15 100 5" stroke="currentColor" strokeWidth="6" fill="transparent"/></svg></span> em sua website.
-          </h1>
-          <p className="text-lg md:text-2xl text-stone-200 mb-10 max-w-2xl font-light leading-relaxed animate-slide-up" style={{ animationDelay: '0.3s' }}>
-            Torramos os melhores grãos do mundo em Portugal. Descubra a nossa seleção premium e sinta a diferença em cada chávena.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-5 animate-slide-up w-full sm:w-auto" style={{ animationDelay: '0.4s' }}>
-            <button className="bg-[#C0752B] hover:bg-[#A66020] text-white px-10 py-5 rounded-full font-bold transition-all transform hover:scale-105 hover:shadow-[0_0_30px_rgba(192,117,43,0.5)] text-lg flex items-center justify-center gap-3 group w-full sm:w-auto">
-              Comprar Grãos <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform" />
-            </button>
-            <button className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-10 py-5 rounded-full font-bold transition-colors text-lg flex items-center justify-center w-full sm:w-auto">
-              Ver Máquinas
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* --- FEATURES BANNER --- */}
-      <div className="bg-[#231815] text-stone-300 py-16 border-b border-stone-800 relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-            <div className="flex flex-col items-center group cursor-default">
-              <div className="p-4 bg-white/5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-[#C0752B]/20 transition-all duration-300">
-                <Award className="h-8 w-8 text-[#C0752B]" />
-              </div>
-              <h3 className="text-white font-bold text-xl mb-3">Grãos de Especialidade</h3>
-              <p className="text-sm font-light leading-relaxed max-w-xs mx-auto">Selecionados a dedo nas melhores quintas de todo o mundo, torrados artesanalmente em Portugal.</p>
-            </div>
-            <div className="flex flex-col items-center group cursor-default">
-              <div className="p-4 bg-white/5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-[#C0752B]/20 transition-all duration-300">
-                <ShieldCheck className="h-8 w-8 text-[#C0752B]" />
-              </div>
-              <h3 className="text-white font-bold text-xl mb-3">Máquinas Premium</h3>
-              <p className="text-sm font-light leading-relaxed max-w-xs mx-auto">Representantes oficiais das melhores marcas. Equipamento para uma extração perfeita.</p>
-            </div>
-            <div className="flex flex-col items-center group cursor-default">
-              <div className="p-4 bg-white/5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-[#C0752B]/20 transition-all duration-300">
-                <Truck className="h-8 w-8 text-[#C0752B]" />
-              </div>
-              <h3 className="text-white font-bold text-xl mb-3">Envio Expresso Grátis</h3>
-              <p className="text-sm font-light leading-relaxed max-w-xs mx-auto">Entregas em 24h. Portes gratuitos em encomendas superiores a 40€ para PT Continental.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* --- CATEGORIES SECTION --- */}
-      <section className="py-24 bg-[#FDFBF7]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20 flex flex-col items-center">
-            <span className="text-[#C0752B] font-bold tracking-widest uppercase text-sm mb-3">Navegue pelas Categorias</span>
-            <h2 className="text-4xl md:text-5xl font-black text-[#231815] mb-6">Tudo para o seu Ritual</h2>
-            <div className="w-24 h-1.5 bg-[#C0752B] rounded-full"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Categoria 1 */}
-            <div className="relative group overflow-hidden rounded-3xl cursor-pointer shadow-xl aspect-[4/5]">
-              <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Café em Grão" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#231815] via-[#231815]/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-              <div className="absolute bottom-0 left-0 p-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-3xl font-black text-white mb-3">Cafés em Grão</h3>
-                <p className="text-stone-300 mb-6 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Descubra os nossos blends exclusivos e origens únicas torrados esta semana.</p>
-                <span className="inline-flex items-center gap-2 bg-white/20 hover:bg-[#C0752B] backdrop-blur-md text-white px-6 py-3 rounded-full font-bold transition-colors">
-                  Explorar <ArrowRight className="h-4 w-4" />
-                </span>
-              </div>
-            </div>
-
-            {/* Categoria 2 */}
-            <div className="relative group overflow-hidden rounded-3xl cursor-pointer shadow-xl aspect-[4/5]">
-              <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Máquinas Expresso" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#231815] via-[#231815]/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-              <div className="absolute bottom-0 left-0 p-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-3xl font-black text-white mb-3">Máquinas</h3>
-                <p className="text-stone-300 mb-6 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">O equipamento de topo que transforma a sua cozinha numa autêntica cafetaria.</p>
-                <span className="inline-flex items-center gap-2 bg-white/20 hover:bg-[#C0752B] backdrop-blur-md text-white px-6 py-3 rounded-full font-bold transition-colors">
-                  Explorar <ArrowRight className="h-4 w-4" />
-                </span>
-              </div>
-            </div>
-
-            {/* Categoria 3 */}
-            <div className="relative group overflow-hidden rounded-3xl cursor-pointer shadow-xl aspect-[4/5]">
-              <img src="https://images.unsplash.com/photo-1495474472201-419b12e323cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Acessórios Barista" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#231815] via-[#231815]/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
-              <div className="absolute bottom-0 left-0 p-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
-                <h3 className="text-3xl font-black text-white mb-3">Acessórios</h3>
-                <p className="text-stone-300 mb-6 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Moinhos precisos, tampers pesados e balanças para aperfeiçoar a sua técnica.</p>
-                <span className="inline-flex items-center gap-2 bg-white/20 hover:bg-[#C0752B] backdrop-blur-md text-white px-6 py-3 rounded-full font-bold transition-colors">
-                  Explorar <ArrowRight className="h-4 w-4" />
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- FEATURED PRODUCTS --- */}
-      <section className="py-32 bg-white relative overflow-hidden">
-        {/* Decorações de Fundo Refinadas */}
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-b from-[#FDFBF7] to-white rounded-bl-[200px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#C0752B]/5 rounded-tr-[100px] -z-10 blur-3xl"></div>
+        body { font-family: 'Inter', sans-serif; }
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-end mb-16 gap-6">
-            <div className="relative">
-              <span className="text-[#C0752B] font-bold tracking-widest uppercase text-sm mb-3 flex items-center gap-2">
-                <Flame className="h-5 w-5" /> Seleção Premium
-              </span>
-              <h2 className="text-4xl md:text-5xl font-black text-[#231815]">Destaques da website</h2>
-            </div>
-            <button className="hidden sm:flex items-center gap-2 text-[#231815] font-black pb-2 border-b-4 border-[#C0752B] hover:text-[#C0752B] transition-colors group text-lg">
-              Ver coleção completa <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product) => (
-              <div key={product.id} className="group flex flex-col bg-white rounded-3xl hover:shadow-[0_30px_60px_-15px_rgba(192,117,43,0.2)] transition-all duration-500 border border-stone-100 hover:border-[#C0752B]/30 overflow-hidden relative transform hover:-translate-y-3">
-                
-                {/* Badges de Vendas */}
-                <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
-                  {product.badge && (
-                    <span className={`text-white text-xs font-black uppercase tracking-widest py-2.5 px-5 rounded-full flex items-center gap-2 shadow-xl ${product.badge === 'Mais Vendido' ? 'bg-gradient-to-r from-[#C0752B] to-[#D4A373]' : product.badge === 'Novidade' ? 'bg-[#231815]' : 'bg-stone-500'}`}>
-                      {product.badge === 'Mais Vendido' ? <Flame className="h-4 w-4" /> : null}
-                      {product.badge}
-                    </span>
-                  )}
-                </div>
-
-                {/* Área da Imagem (Estilo Montra) */}
-                <div className="relative aspect-[4/5] sm:aspect-square overflow-hidden bg-[#F8F5F0] p-6 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[#231815]/5 group-hover:bg-transparent transition-colors duration-500"></div>
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    className="w-full h-full object-cover rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-700 relative z-10"
-                  />
-                  {/* Efeito Hover Rápido (Overlay) */}
-                  <div className="absolute inset-0 bg-[#231815]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-6 z-20 backdrop-blur-[2px]">
-                    <button 
-                      onClick={() => addToCart(product)}
-                      className="w-full max-w-[200px] bg-[#C0752B] text-white font-black py-4 px-6 rounded-full transform translate-y-8 group-hover:translate-y-0 transition-all duration-300 hover:bg-white hover:text-[#C0752B] flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(192,117,43,0.4)]"
-                    >
-                      <ShoppingBag className="h-5 w-5" /> Comprar Já
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Conteúdo Reforçado */}
-                <div className="p-8 flex flex-col flex-1 bg-white relative z-30">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold text-[#C0752B] uppercase tracking-widest bg-[#C0752B]/10 px-3 py-1.5 rounded-full">{product.category}</span>
-                    <div className="flex items-center gap-1.5 bg-stone-50 px-2.5 py-1.5 rounded-md border border-stone-100">
-                      <Star className="h-3.5 w-3.5 fill-[#C0752B] text-[#C0752B]" />
-                      <span className="text-xs font-black text-[#231815]">{product.rating}</span>
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-2xl font-black text-[#231815] mb-3 group-hover:text-[#C0752B] transition-colors line-clamp-1">{product.name}</h3>
-                  <p className="text-stone-500 text-sm leading-relaxed mb-8 flex-1 line-clamp-2">{product.description}</p>
-                  
-                  {/* Gatilho de Urgência Melhorado */}
-                  {product.stock <= 5 && (
-                    <div className="mb-5 -mt-2">
-                      <p className="text-xs text-[#C0752B] font-bold flex items-center gap-2 bg-[#C0752B]/10 w-fit px-3.5 py-2 rounded-lg border border-[#C0752B]/20">
-                        <span className="relative flex h-3 w-3">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C0752B] opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-3 w-3 bg-[#C0752B]"></span>
-                        </span>
-                        Restam {product.stock} unidades!
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Área Base de Compra */}
-                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-stone-100">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-1">Preço Final</span>
-                      <span className="text-3xl font-black text-[#231815]">
-                        {product.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-                      </span>
-                    </div>
-                    <button 
-                      onClick={() => addToCart(product)}
-                      className="bg-stone-100 hover:bg-[#C0752B] text-[#231815] hover:text-white p-4 rounded-2xl transition-all duration-300 transform group-hover:scale-110 group-hover:-rotate-3 shadow-sm hover:shadow-[0_10px_20px_rgba(192,117,43,0.3)]"
-                      aria-label="Adicionar ao carrinho"
-                    >
-                      <ShoppingBag className="h-6 w-6" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-16 sm:hidden text-center">
-             <button className="border-2 border-[#231815] text-[#231815] font-black py-5 px-8 rounded-full w-full uppercase tracking-wider hover:bg-[#231815] hover:text-white transition-colors">
-               Ver coleção completa
-             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* --- BRAND STORY / SOCIAL PROOF --- */}
-      <section className="py-24 bg-[#231815] text-white relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-full lg:w-1/2 h-full">
-          <img src="https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Torrefação" className="w-full h-full object-cover opacity-30 lg:opacity-60 mix-blend-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#231815] via-[#231815]/90 to-transparent"></div>
-        </div>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-2xl">
-            <span className="text-[#C0752B] font-bold tracking-widest uppercase text-sm mb-4 block">Desde 2018</span>
-            <h2 className="text-5xl md:text-6xl font-black mb-8 leading-tight">A Arte da Torra, <br/>em Portugal.</h2>
-            <p className="text-stone-300 text-lg mb-6 font-light leading-relaxed">
-              A website do Café nasceu da paixão pelo verdadeiro expresso. Não vendemos apenas café; entregamos uma experiência. Trabalhamos diretamente com produtores para garantir grãos éticos e de qualidade superior.
-            </p>
-            <div className="flex items-center gap-4 mb-10 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-              <div className="flex -space-x-3">
-                <img className="w-10 h-10 rounded-full border-2 border-[#231815]" src="https://i.pravatar.cc/100?img=1" alt="Cliente" />
-                <img className="w-10 h-10 rounded-full border-2 border-[#231815]" src="https://i.pravatar.cc/100?img=2" alt="Cliente" />
-                <img className="w-10 h-10 rounded-full border-2 border-[#231815]" src="https://i.pravatar.cc/100?img=3" alt="Cliente" />
-              </div>
-              <div className="text-sm">
-                <div className="flex text-[#C0752B] mb-1">
-                  <Star className="w-4 h-4 fill-current"/><Star className="w-4 h-4 fill-current"/><Star className="w-4 h-4 fill-current"/><Star className="w-4 h-4 fill-current"/><Star className="w-4 h-4 fill-current"/>
-                </div>
-                <span className="font-bold">+10.000 clientes satisfeitos</span>
-              </div>
-            </div>
-            <button className="bg-[#C0752B] text-white hover:bg-white hover:text-[#231815] px-10 py-5 rounded-full font-bold transition-colors text-lg inline-block">
-              Conheça a nossa história
-            </button>
-          </div>
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-marquee { animation: marquee 20s linear infinite; }
+        .animate-slide-up { animation: slideUpFade 0.6s ease-out forwards; opacity: 0; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Smooth transitions for drawer */
+        #cart-drawer { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        #mobile-menu { transition: transform 0.3s ease-out; }
+
+        /* 3D Canvas Container */
+        #hero-3d-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none; /* Permite clicar nos botões por baixo */
+        }
+    </style>
+</head>
+<body class="bg-cafe-bg text-cafe-dark selection:bg-cafe-accent selection:text-white overflow-x-hidden">
+
+    <!-- --- TOP ANNOUNCEMENT BAR --- -->
+    <div class="bg-cafe-accent text-white text-xs md:text-sm font-bold tracking-widest uppercase overflow-hidden whitespace-nowrap py-2.5 relative z-50">
+        <div class="inline-block animate-marquee">
+            <span class="mx-6"><i class="fa-solid fa-fire"></i> TORRA FRESCA SEMANAL</span> • 
+            <span class="mx-6"><i class="fa-solid fa-truck-fast"></i> PORTES GRÁTIS EM COMPRAS > 40€</span> • 
+            <span class="mx-6"><i class="fa-solid fa-mug-hot"></i> 10% DESCONTO NA 1ª COMPRA: BEMVINDO</span> • 
+            <span class="mx-6"><i class="fa-solid fa-fire"></i> TORRA FRESCA SEMANAL</span> • 
+            <span class="mx-6"><i class="fa-solid fa-truck-fast"></i> PORTES GRÁTIS EM COMPRAS > 40€</span> • 
+            <span class="mx-6"><i class="fa-solid fa-mug-hot"></i> 10% DESCONTO NA 1ª COMPRA: BEMVINDO</span>
         </div>
-      </section>
-
-      {/* --- FOOTER --- */}
-      <footer className="bg-[#1A120E] text-stone-400 py-20 border-t-4 border-[#C0752B]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-8">
-            
-            {/* Brand */}
-            <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center gap-2 mb-6">
-                <Coffee className="h-8 w-8 text-[#C0752B]" />
-                <span className="text-2xl font-black tracking-tighter text-white">
-                  website DO CAFÉ
-                </span>
-              </div>
-              <p className="text-sm leading-relaxed mb-6 font-light">
-                A sua loja de café de especialidade e equipamentos premium. Torramos diariamente para garantir a máxima frescura.
-              </p>
-            </div>
-
-            {/* Links */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-lg">Loja</h4>
-              <ul className="space-y-4 text-sm font-medium">
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Café em Grão</a></li>
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Máquinas Expresso</a></li>
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Moinhos</a></li>
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Acessórios</a></li>
-              </ul>
-            </div>
-
-            {/* Apoio */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-lg">Apoio ao Cliente</h4>
-              <ul className="space-y-4 text-sm font-medium">
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Contactos</a></li>
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Envios e Devoluções</a></li>
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> Garantias</a></li>
-                <li><a href="#" className="hover:text-[#C0752B] transition-colors flex items-center gap-2"><ArrowRight className="h-3 w-3" /> FAQ</a></li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="text-white font-bold mb-6 text-lg">Junte-se ao Clube</h4>
-              <p className="text-sm mb-4 font-light leading-relaxed">Receba ofertas exclusivas e 10% de desconto na primeira compra.</p>
-              <form className="flex shadow-lg rounded-xl overflow-hidden focus-within:ring-2 ring-[#C0752B]">
-                <input 
-                  type="email" 
-                  placeholder="O seu melhor email" 
-                  className="bg-white/5 border-none text-white px-4 py-4 w-full focus:outline-none placeholder-stone-500 font-medium"
-                />
-                <button className="bg-[#C0752B] hover:bg-[#A66020] text-white px-6 py-4 transition-colors font-bold">
-                  Subscrever
-                </button>
-              </form>
-            </div>
-            
-          </div>
-          
-          <div className="mt-20 pt-8 border-t border-white/10 text-sm flex flex-col md:flex-row justify-between items-center font-medium">
-            <p>&copy; 2026 website do Café. Todos os direitos reservados.</p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-white transition-colors">Termos e Condições</a>
-              <a href="#" className="hover:text-white transition-colors">Política de Privacidade</a>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* --- FLOATING ELEMENTS (WhatsApp & Toast) --- */}
-      
-      {/* WhatsApp Button */}
-      <a href="#" className="fixed bottom-6 right-6 z-40 bg-green-500 text-white p-4 rounded-full shadow-[0_4px_20px_rgba(34,197,94,0.4)] hover:scale-110 hover:bg-green-600 transition-all duration-300 animate-float flex items-center justify-center group">
-        <MessageCircle className="h-7 w-7" />
-        <span className="absolute right-full mr-4 bg-[#231815] text-white text-sm font-bold px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl pointer-events-none after:content-[''] after:absolute after:top-1/2 after:-right-2 after:-mt-2 after:border-4 after:border-transparent after:border-l-[#231815]">
-          Precisa de ajuda?
-        </span>
-      </a>
-
-      {/* Toast Notification */}
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-[#231815] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-slide-up border border-white/10">
-          <CheckCircle className="h-5 w-5 text-[#C0752B]" />
-          <span className="font-bold">{toast}</span>
-        </div>
-      )}
-
     </div>
-  );
-}
+
+    <!-- --- NAVBAR --- -->
+    <nav id="navbar" class="fixed w-full z-40 transition-all duration-500 bg-transparent py-6 top-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer group">
+                    <i class="fa-solid fa-mug-hot text-3xl text-cafe-accent"></i>
+                    <span id="nav-logo-text" class="text-2xl font-black tracking-tighter text-white transition-colors duration-300">
+                        Website DO CAFÉ
+                    </span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="nav-link font-semibold text-stone-200 hover:text-cafe-accent transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-cafe-accent hover:after:w-full after:transition-all after:duration-300 pb-1">Loja</a>
+                    <a href="#" class="nav-link font-semibold text-stone-200 hover:text-cafe-accent transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-cafe-accent hover:after:w-full after:transition-all after:duration-300 pb-1">Máquinas</a>
+                    <a href="#" class="nav-link font-semibold text-stone-200 hover:text-cafe-accent transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-cafe-accent hover:after:w-full after:transition-all after:duration-300 pb-1">Sobre Nós</a>
+                </div>
+
+                <!-- Icons -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-white/10 transition-colors text-white group nav-icon">
+                        <i class="fa-solid fa-bag-shopping text-2xl group-hover:scale-110 transition-transform"></i>
+                        <span id="cart-badge" class="hidden absolute top-0 right-0 bg-cafe-accent text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center transform translate-x-1 -translate-y-1 shadow-lg border-2 border-cafe-dark">0</span>
+                    </button>
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-full hover:bg-white/10 transition-colors text-white nav-icon">
+                        <i id="mobile-menu-icon" class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Dropdown -->
+    <div id="mobile-menu" class="fixed inset-0 z-30 bg-cafe-dark/98 backdrop-blur-xl text-white pt-32 px-6 flex flex-col space-y-8 md:hidden translate-x-full">
+        <a href="#" class="text-3xl font-bold hover:text-cafe-accent flex items-center gap-4"><i class="fa-solid fa-mug-hot"></i> Cafés em Grão</a>
+        <a href="#" class="text-3xl font-bold hover:text-cafe-accent flex items-center gap-4"><i class="fa-solid fa-bolt"></i> Máquinas</a>
+        <a href="#" class="text-3xl font-bold hover:text-cafe-accent flex items-center gap-4"><i class="fa-solid fa-shield-halved"></i> Acessórios</a>
+    </div>
+
+    <!-- --- CART DRAWER --- -->
+    <div id="cart-overlay" class="fixed inset-0 bg-cafe-dark/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="toggleCart()"></div>
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-[0_0_50px_rgba(0,0,0,0.3)] z-50 flex flex-col translate-x-full">
+        <div class="p-6 border-b border-stone-100 flex justify-between items-center bg-cafe-bg">
+            <h3 class="font-extrabold text-2xl text-cafe-dark flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-cafe-accent"></i> O seu Carrinho
+            </h3>
+            <button onclick="toggleCart()" class="p-2 hover:bg-stone-200 rounded-full transition-colors"><i class="fa-solid fa-xmark text-xl text-stone-500"></i></button>
+        </div>
+
+        <!-- Free Shipping Progress -->
+        <div class="p-6 bg-stone-50 border-b border-stone-200 shadow-inner">
+            <div class="flex justify-between text-sm font-bold mb-3">
+                <span class="text-cafe-dark">Portes Grátis</span>
+                <span id="shipping-text" class="text-cafe-accent">Faltam 40.00€</span>
+            </div>
+            <div class="w-full bg-stone-200 rounded-full h-3 overflow-hidden shadow-inner">
+                <div id="shipping-bar" class="bg-cafe-accent h-3 rounded-full transition-all duration-1000 ease-out relative" style="width: 0%">
+                    <div class="absolute inset-0 bg-white/20 w-full h-full animate-[marquee_1s_linear_infinite]" style="background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center text-stone-400 p-8">
+            <i class="fa-solid fa-bag-shopping text-6xl mb-4 opacity-50"></i>
+            <p class="text-lg font-medium">O carrinho está vazio.</p>
+            <button onclick="toggleCart()" class="mt-6 text-cafe-accent font-bold hover:underline">Continuar a comprar</button>
+        </div>
+
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6 hide-scrollbar hidden">
+            <!-- Items will be injected here via JS -->
+        </div>
+        
+        <div id="cart-footer" class="p-6 border-t border-stone-200 bg-cafe-bg shadow-[0_-10px_30px_rgba(0,0,0,0.05)] hidden">
+            <div class="flex justify-between font-black mb-6 text-xl">
+                <span class="text-stone-600">Total:</span>
+                <span id="cart-total" class="text-cafe-dark text-3xl">0.00 €</span>
+            </div>
+            <button class="w-full bg-cafe-dark text-white py-4 rounded-xl hover:bg-cafe-accent transition-all transform hover:scale-[1.02] shadow-xl font-bold text-lg flex justify-center items-center gap-3 group">
+                Finalizar Compra <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- --- HERO SECTION --- -->
+    <div class="relative h-screen flex items-center justify-center overflow-hidden bg-cafe-dark">
+        <!-- Background Imagem -->
+        <div class="absolute inset-0">
+            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Café a ser tirado" class="w-full h-full object-cover scale-105" />
+            <div class="absolute inset-0 bg-gradient-to-r from-cafe-dark/95 via-cafe-dark/80 to-cafe-dark/40"></div>
+        </div>
+
+        <!-- 3D Canvas (Lata de Café) -->
+        <div id="hero-3d-canvas"></div>
+
+        <!-- Content -->
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start mt-10 pointer-events-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cafe-accent/20 border border-cafe-accent/50 text-cafe-light text-sm font-bold tracking-widest uppercase mb-8 animate-slide-up backdrop-blur-sm" style="animation-delay: 0.1s">
+                <i class="fa-solid fa-bolt"></i> Nova Colheita Disponível
+            </div>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-6 leading-[1.05] max-w-3xl animate-slide-up tracking-tight" style="animation-delay: 0.2s">
+                O verdadeiro sabor do <span class="text-cafe-accent relative inline-block">expresso<svg class="absolute w-full h-4 -bottom-2 left-0 text-cafe-accent" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 15 100 5" stroke="currentColor" stroke-width="6" fill="transparent"/></svg></span> em sua Website.
+            </h1>
+            <p class="text-lg md:text-2xl text-stone-200 mb-10 max-w-2xl font-light leading-relaxed animate-slide-up" style="animation-delay: 0.3s">
+                Torramos os melhores grãos do mundo em Portugal. Descubra a nossa seleção premium e sinta a diferença em cada chávena.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-5 animate-slide-up w-full sm:w-auto" style="animation-delay: 0.4s">
+                <a href="#produtos" class="bg-cafe-accent hover:bg-[#A66020] text-white px-10 py-5 rounded-full font-bold transition-all transform hover:scale-105 hover:shadow-[0_0_30px_rgba(192,117,43,0.5)] text-lg flex items-center justify-center gap-3 group w-full sm:w-auto text-center cursor-pointer">
+                    Comprar Grãos <i class="fa-solid fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                </a>
+                <button class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 px-10 py-5 rounded-full font-bold transition-colors text-lg flex items-center justify-center w-full sm:w-auto">
+                    Ver Máquinas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- FEATURES BANNER --- -->
+    <div class="bg-cafe-dark text-stone-300 py-16 border-b border-stone-800 relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+                <div class="flex flex-col items-center group cursor-default">
+                    <div class="p-4 bg-white/5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-cafe-accent/20 transition-all duration-300">
+                        <i class="fa-solid fa-award text-3xl text-cafe-accent"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Grãos de Especialidade</h3>
+                    <p class="text-sm font-light leading-relaxed max-w-xs mx-auto">Selecionados a dedo nas melhores quintas de todo o mundo, torrados artesanalmente em Portugal.</p>
+                </div>
+                <div class="flex flex-col items-center group cursor-default">
+                    <div class="p-4 bg-white/5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-cafe-accent/20 transition-all duration-300">
+                        <i class="fa-solid fa-shield-halved text-3xl text-cafe-accent"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Máquinas Premium</h3>
+                    <p class="text-sm font-light leading-relaxed max-w-xs mx-auto">Representantes oficiais das melhores marcas. Equipamento para uma extração perfeita.</p>
+                </div>
+                <div class="flex flex-col items-center group cursor-default">
+                    <div class="p-4 bg-white/5 rounded-full mb-5 group-hover:scale-110 group-hover:bg-cafe-accent/20 transition-all duration-300">
+                        <i class="fa-solid fa-truck-fast text-3xl text-cafe-accent"></i>
+                    </div>
+                    <h3 class="text-white font-bold text-xl mb-3">Envio Expresso Grátis</h3>
+                    <p class="text-sm font-light leading-relaxed max-w-xs mx-auto">Entregas em 24h. Portes gratuitos em encomendas superiores a 40€ para PT Continental.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- CATEGORIES SECTION --- -->
+    <section class="py-24 bg-cafe-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20 flex flex-col items-center">
+                <span class="text-cafe-accent font-bold tracking-widest uppercase text-sm mb-3">Navegue pelas Categorias</span>
+                <h2 class="text-4xl md:text-5xl font-black text-cafe-dark mb-6">Tudo para o seu Ritual</h2>
+                <div class="w-24 h-1.5 bg-cafe-accent rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Categoria 1 -->
+                <div class="relative group overflow-hidden rounded-3xl cursor-pointer shadow-xl aspect-[4/5]">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Café em Grão" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-cafe-dark via-cafe-dark/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                    <div class="absolute bottom-0 left-0 p-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+                        <h3 class="text-3xl font-black text-white mb-3">Cafés em Grão</h3>
+                        <p class="text-stone-300 mb-6 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Descubra os nossos blends exclusivos e origens únicas torrados esta semana.</p>
+                        <span class="inline-flex items-center gap-2 bg-white/20 hover:bg-cafe-accent backdrop-blur-md text-white px-6 py-3 rounded-full font-bold transition-colors">
+                            Explorar <i class="fa-solid fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Categoria 2 -->
+                <div class="relative group overflow-hidden rounded-3xl cursor-pointer shadow-xl aspect-[4/5]">
+                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Máquinas Expresso" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-cafe-dark via-cafe-dark/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                    <div class="absolute bottom-0 left-0 p-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+                        <h3 class="text-3xl font-black text-white mb-3">Máquinas</h3>
+                        <p class="text-stone-300 mb-6 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">O equipamento de topo que transforma a sua cozinha numa autêntica cafetaria.</p>
+                        <span class="inline-flex items-center gap-2 bg-white/20 hover:bg-cafe-accent backdrop-blur-md text-white px-6 py-3 rounded-full font-bold transition-colors">
+                            Explorar <i class="fa-solid fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Categoria 3 -->
+                <div class="relative group overflow-hidden rounded-3xl cursor-pointer shadow-xl aspect-[4/5]">
+                    <img src="https://images.unsplash.com/photo-1495474472201-419b12e323cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Acessórios Barista" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-cafe-dark via-cafe-dark/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
+                    <div class="absolute bottom-0 left-0 p-10 w-full transform group-hover:-translate-y-2 transition-transform duration-500">
+                        <h3 class="text-3xl font-black text-white mb-3">Acessórios</h3>
+                        <p class="text-stone-300 mb-6 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">Moinhos precisos, tampers pesados e balanças para aperfeiçoar a sua técnica.</p>
+                        <span class="inline-flex items-center gap-2 bg-white/20 hover:bg-cafe-accent backdrop-blur-md text-white px-6 py-3 rounded-full font-bold transition-colors">
+                            Explorar <i class="fa-solid fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- FEATURED PRODUCTS --- -->
+    <section id="produtos" class="py-32 bg-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-b from-[#FDFBF7] to-white rounded-bl-[200px] -z-10"></div>
+        <div class="absolute bottom-0 left-0 w-72 h-72 bg-cafe-accent/5 rounded-tr-[100px] -z-10 blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-end mb-16 gap-6">
+                <div class="relative">
+                    <span class="text-cafe-accent font-bold tracking-widest uppercase text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-fire"></i> Seleção Premium
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-black text-cafe-dark">Destaques da Website</h2>
+                </div>
+                <button class="hidden sm:flex items-center gap-2 text-cafe-dark font-black pb-2 border-b-4 border-cafe-accent hover:text-cafe-accent transition-colors group text-lg">
+                    Ver coleção completa <i class="fa-solid fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                </button>
+            </div>
+
+            <!-- Div onde os produtos serão renderizados por JS -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Produtos renderizados pelo JavaScript -->
+            </div>
+            
+            <div class="mt-16 sm:hidden text-center">
+                 <button class="border-2 border-cafe-dark text-cafe-dark font-black py-5 px-8 rounded-full w-full uppercase tracking-wider hover:bg-cafe-dark hover:text-white transition-colors">
+                     Ver coleção completa
+                 </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- BRAND STORY --- -->
+    <section class="py-24 bg-cafe-dark text-white relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-full lg:w-1/2 h-full">
+            <img src="https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Torrefação" class="w-full h-full object-cover opacity-30 lg:opacity-60 mix-blend-overlay" />
+            <div class="absolute inset-0 bg-gradient-to-r from-cafe-dark via-cafe-dark/90 to-transparent"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-2xl">
+                <span class="text-cafe-accent font-bold tracking-widest uppercase text-sm mb-4 block">Desde 2018</span>
+                <h2 class="text-5xl md:text-6xl font-black mb-8 leading-tight">A Arte da Torra, <br/>em Portugal.</h2>
+                <p class="text-stone-300 text-lg mb-6 font-light leading-relaxed">
+                    A Website do Café nasceu da paixão pelo verdadeiro expresso. Não vendemos apenas café; entregamos uma experiência. Trabalhamos diretamente com produtores para garantir grãos éticos e de qualidade superior.
+                </p>
+                <div class="flex items-center gap-4 mb-10 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+                    <div class="flex -space-x-3">
+                        <img class="w-10 h-10 rounded-full border-2 border-cafe-dark" src="https://i.pravatar.cc/100?img=1" alt="Cliente" />
+                        <img class="w-10 h-10 rounded-full border-2 border-cafe-dark" src="https://i.pravatar.cc/100?img=2" alt="Cliente" />
+                        <img class="w-10 h-10 rounded-full border-2 border-cafe-dark" src="https://i.pravatar.cc/100?img=3" alt="Cliente" />
+                    </div>
+                    <div class="text-sm">
+                        <div class="flex text-cafe-accent mb-1 gap-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="font-bold">+10.000 clientes satisfeitos</span>
+                    </div>
+                </div>
+                <button class="bg-cafe-accent text-white hover:bg-white hover:text-cafe-dark px-10 py-5 rounded-full font-bold transition-colors text-lg inline-block">
+                    Conheça a nossa história
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- FOOTER --- -->
+    <footer class="bg-[#1A120E] text-stone-400 py-20 border-t-4 border-cafe-accent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-8">
+                
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i class="fa-solid fa-mug-hot text-3xl text-cafe-accent"></i>
+                        <span class="text-2xl font-black tracking-tighter text-white">
+                            Website DO CAFÉ
+                        </span>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-6 font-light">
+                        A sua loja de café de especialidade e equipamentos premium. Torramos diariamente para garantir a máxima frescura.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-lg">Loja</h4>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Café em Grão</a></li>
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Máquinas Expresso</a></li>
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Moinhos</a></li>
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Acessórios</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-lg">Apoio ao Cliente</h4>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Contactos</a></li>
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Envios e Devoluções</a></li>
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Garantias</a></li>
+                        <li><a href="#" class="hover:text-cafe-accent transition-colors flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-6 text-lg">Junte-se ao Clube</h4>
+                    <p class="text-sm mb-4 font-light leading-relaxed">Receba ofertas exclusivas e 10% de desconto na primeira compra.</p>
+                    <form class="flex shadow-lg rounded-xl overflow-hidden focus-within:ring-2 ring-cafe-accent" onsubmit="event.preventDefault()">
+                        <input type="email" placeholder="O seu melhor email" class="bg-white/5 border-none text-white px-4 py-4 w-full focus:outline-none placeholder-stone-500 font-medium" />
+                        <button class="bg-cafe-accent hover:bg-[#A66020] text-white px-6 py-4 transition-colors font-bold">Subscrever</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="mt-20 pt-8 border-t border-white/10 text-sm flex flex-col md:flex-row justify-between items-center font-medium">
+                <p>&copy; 2026 Website do Café. Todos os direitos reservados.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition-colors">Termos e Condições</a>
+                    <a href="#" class="hover:text-white transition-colors">Política de Privacidade</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Button -->
+    <a href="#" class="fixed bottom-6 right-6 z-40 bg-green-500 text-white p-4 rounded-full shadow-[0_4px_20px_rgba(34,197,94,0.4)] hover:scale-110 hover:bg-green-600 transition-all duration-300 animate-float flex items-center justify-center group">
+        <i class="fa-brands fa-whatsapp text-3xl"></i>
+        <span class="absolute right-full mr-4 bg-cafe-dark text-white text-sm font-bold px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl pointer-events-none after:content-[''] after:absolute after:top-1/2 after:-right-2 after:-mt-2 after:border-4 after:border-transparent after:border-l-cafe-dark">
+            Precisa de ajuda?
+        </span>
+    </a>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-cafe-dark text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10 opacity-0 pointer-events-none transition-opacity duration-300">
+        <i class="fa-solid fa-circle-check text-cafe-accent text-xl"></i>
+        <span id="toast-message" class="font-bold">Produto adicionado!</span>
+    </div>
+
+    <!-- JavaScript Principal -->
+    <script>
+        // --- MOCK DATA ---
+        const products = [
+            { id: 1, name: 'Lote Arábica Premium', category: 'Café em Grão', price: 18.50, rating: 5.0, badge: 'Mais Vendido', stock: 12, image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', description: '100% Arábica de torra média. Notas de chocolate negro e frutos vermelhos.' },
+            { id: 2, name: 'Lote Expresso Lusitano', category: 'Café em Grão', price: 14.90, rating: 4.8, badge: 'Recomendado', stock: 4, image: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', description: 'O clássico blend português. Encorpado, creme denso e final persistente.' },
+            { id: 3, name: 'La Marzocco Linea Micra', category: 'Máquinas', price: 3250.00, rating: 5.0, stock: 2, image: 'https://images.unsplash.com/photo-1585494156145-1c60a4fb4526?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', description: 'A performance de uma máquina de café comercial num formato compacto para Website.' },
+            { id: 4, name: 'Moinho Eureka Mignon', category: 'Acessórios', price: 429.00, rating: 4.9, badge: 'Novidade', stock: 8, image: 'https://images.unsplash.com/photo-1620088922256-42d4a04910eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', description: 'Moinho on-demand silencioso com ajuste micrométrico para o expresso perfeito.' }
+        ];
+
+        let cart = [];
+        const FREE_SHIPPING = 40;
+
+        // --- RENDER PRODUCTS ---
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = products.map(product => `
+                <div class="group flex flex-col bg-white rounded-3xl hover:shadow-[0_30px_60px_-15px_rgba(192,117,43,0.2)] transition-all duration-500 border border-stone-100 hover:border-cafe-accent/30 overflow-hidden relative transform hover:-translate-y-3">
+                    <div class="absolute top-5 left-5 z-20 flex flex-col gap-2">
+                        ${product.badge ? `<span class="text-white text-xs font-black uppercase tracking-widest py-2.5 px-5 rounded-full flex items-center gap-2 shadow-xl ${product.badge === 'Mais Vendido' ? 'bg-gradient-to-r from-cafe-accent to-cafe-light' : product.badge === 'Novidade' ? 'bg-cafe-dark' : 'bg-stone-500'}">
+                            ${product.badge === 'Mais Vendido' ? '<i class="fa-solid fa-fire"></i>' : ''} ${product.badge}
+                        </span>` : ''}
+                    </div>
+
+                    <div class="relative aspect-[4/5] sm:aspect-square overflow-hidden bg-[#F8F5F0] p-6 flex items-center justify-center">
+                        <div class="absolute inset-0 bg-cafe-dark/5 group-hover:bg-transparent transition-colors duration-500"></div>
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-700 relative z-10" />
+                        
+                        <div class="absolute inset-0 bg-cafe-dark/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-center items-center p-6 z-20 backdrop-blur-[2px]">
+                            <button onclick="addToCart(${product.id})" class="w-full max-w-[200px] bg-cafe-accent text-white font-black py-4 px-6 rounded-full transform translate-y-8 group-hover:translate-y-0 transition-all duration-300 hover:bg-white hover:text-cafe-accent flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(192,117,43,0.4)]">
+                                <i class="fa-solid fa-bag-shopping"></i> Comprar Já
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 flex flex-col flex-1 bg-white relative z-30">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold text-cafe-accent uppercase tracking-widest bg-cafe-accent/10 px-3 py-1.5 rounded-full">${product.category}</span>
+                            <div class="flex items-center gap-1.5 bg-stone-50 px-2.5 py-1.5 rounded-md border border-stone-100">
+                                <i class="fa-solid fa-star text-cafe-accent text-xs"></i>
+                                <span class="text-xs font-black text-cafe-dark">${product.rating}</span>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-2xl font-black text-cafe-dark mb-3 group-hover:text-cafe-accent transition-colors line-clamp-1">${product.name}</h3>
+                        <p class="text-stone-500 text-sm leading-relaxed mb-8 flex-1 line-clamp-2">${product.description}</p>
+                        
+                        ${product.stock <= 5 ? `
+                        <div class="mb-5 -mt-2">
+                            <p class="text-xs text-cafe-accent font-bold flex items-center gap-2 bg-cafe-accent/10 w-fit px-3.5 py-2 rounded-lg border border-cafe-accent/20">
+                                <span class="relative flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cafe-accent opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-cafe-accent"></span>
+                                </span>
+                                Restam ${product.stock} unidades!
+                            </p>
+                        </div>` : ''}
+
+                        <div class="flex items-center justify-between mt-auto pt-6 border-t border-stone-100">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-stone-400 font-bold uppercase tracking-wider mb-1">Preço Final</span>
+                                <span class="text-3xl font-black text-cafe-dark">${product.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}</span>
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="bg-stone-100 hover:bg-cafe-accent text-cafe-dark hover:text-white p-4 rounded-2xl transition-all duration-300 transform group-hover:scale-110 group-hover:-rotate-3 shadow-sm hover:shadow-[0_10px_20px_rgba(192,117,43,0.3)]">
+                                <i class="fa-solid fa-bag-shopping text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- CART LOGIC ---
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            cart.push(product);
+            updateCartUI();
+            
+            // Show Toast
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = `✨ ${product.name} adicionado!`;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100', 'animate-slide-up');
+            
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'animate-slide-up');
+                toast.classList.add('opacity-0');
+            }, 3000);
+
+            // Open Cart
+            const drawer = document.getElementById('cart-drawer');
+            if (drawer.classList.contains('translate-x-full')) {
+                toggleCart();
+            }
+        }
+
+        function updateCartUI() {
+            // Badge
+            const badge = document.getElementById('cart-badge');
+            if (cart.length > 0) {
+                badge.classList.remove('hidden');
+                badge.innerText = cart.length;
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Calculate Totals
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const leftForShipping = Math.max(FREE_SHIPPING - total, 0);
+            const progress = Math.min((total / FREE_SHIPPING) * 100, 100);
+
+            // Update DOM
+            document.getElementById('cart-total').innerText = total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+            document.getElementById('shipping-bar').style.width = `${progress}%`;
+            
+            const shippingText = document.getElementById('shipping-text');
+            if (leftForShipping > 0) {
+                shippingText.innerHTML = `Faltam ${leftForShipping.toFixed(2)}€`;
+                shippingText.className = "text-cafe-accent";
+            } else {
+                shippingText.innerHTML = `<i class="fa-solid fa-circle-check"></i> Desbloqueado!`;
+                shippingText.className = "text-green-600 flex items-center gap-1";
+            }
+
+            // Items list
+            const cartItems = document.getElementById('cart-items');
+            const cartEmpty = document.getElementById('cart-empty');
+            const cartFooter = document.getElementById('cart-footer');
+
+            if (cart.length > 0) {
+                cartEmpty.classList.add('hidden');
+                cartItems.classList.remove('hidden');
+                cartFooter.classList.remove('hidden');
+                
+                cartItems.innerHTML = cart.map((item, index) => `
+                    <div class="flex gap-4 items-center bg-white p-3 rounded-xl shadow-sm border border-stone-100">
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg shadow-sm" />
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-cafe-dark line-clamp-2 leading-tight mb-1">${item.name}</p>
+                            <p class="text-sm font-black text-cafe-accent">${item.price.toFixed(2)} €</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                cartEmpty.classList.remove('hidden');
+                cartItems.classList.add('hidden');
+                cartFooter.classList.add('hidden');
+            }
+        }
+
+        // --- UI TOGGLES ---
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-overlay');
+            
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('mobile-menu-icon');
+            
+            if (menu.classList.contains('translate-x-full')) {
+                menu.classList.remove('translate-x-full');
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                menu.classList.add('translate-x-full');
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            const logoText = document.getElementById('nav-logo-text');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const navIcons = document.querySelectorAll('.nav-icon');
+
+            if (window.scrollY > 30) {
+                nav.classList.remove('bg-transparent', 'py-6', 'top-10');
+                nav.classList.add('bg-cafe-dark/95', 'backdrop-blur-md', 'shadow-2xl', 'py-3', 'top-0');
+            } else {
+                nav.classList.add('bg-transparent', 'py-6', 'top-10');
+                nav.classList.remove('bg-cafe-dark/95', 'backdrop-blur-md', 'shadow-2xl', 'py-3', 'top-0');
+            }
+        });
+
+        // Initialize Products
+        renderProducts();
+
+
+        // ==========================================
+        // --- 3D INTERACTIVE COFFEE CAN (THREE.JS) -
+        // ==========================================
+        
+        // Wait for window load to ensure everything is ready
+        window.onload = function() {
+            const container = document.getElementById('hero-3d-canvas');
+            
+            // 1. Setup Scene
+            const scene = new THREE.Scene();
+            
+            // 2. Setup Camera
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            // Posicionar a câmara ligeiramente à direita para não tapar o texto
+            camera.position.set(4, 0, 10); 
+            
+            if(window.innerWidth < 768) {
+                camera.position.set(0, -3, 15); // Em mobile, colocar mais em baixo e afastar
+            }
+
+            // 3. Setup Renderer
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // 4. Create the Coffee Can (Lata)
+            const canGroup = new THREE.Group();
+
+            // Materiais
+            const metalMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xcccccc, 
+                metalness: 0.8, 
+                roughness: 0.2 
+            });
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x1A120E, // Preto/Castanho muito escuro (Cor da marca)
+                metalness: 0.2, 
+                roughness: 0.5 
+            });
+            const goldMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xC0752B, // Dourado/Âmbar da marca
+                metalness: 0.6, 
+                roughness: 0.3 
+            });
+
+            // Corpo da lata (Cilindro principal)
+            const bodyGeo = new THREE.CylinderGeometry(1.8, 1.8, 4.5, 64);
+            const bodyMesh = new THREE.Mesh(bodyGeo, bodyMaterial);
+            canGroup.add(bodyMesh);
+
+            // Faixa dourada (Rótulo/Detalhe)
+            const stripeGeo = new THREE.CylinderGeometry(1.81, 1.81, 1.5, 64);
+            const stripeMesh = new THREE.Mesh(stripeGeo, goldMaterial);
+            stripeMesh.position.y = -0.5;
+            canGroup.add(stripeMesh);
+
+            // Topo metálico (Aro)
+            const topGeo = new THREE.CylinderGeometry(1.82, 1.82, 0.2, 64);
+            const topMesh = new THREE.Mesh(topGeo, metalMaterial);
+            topMesh.position.y = 2.35;
+            canGroup.add(topMesh);
+
+            // Base metálica
+            const bottomGeo = new THREE.CylinderGeometry(1.82, 1.82, 0.2, 64);
+            const bottomMesh = new THREE.Mesh(bottomGeo, metalMaterial);
+            bottomMesh.position.y = -2.35;
+            canGroup.add(bottomMesh);
+            
+            // Tampa da lata
+            const lidGeo = new THREE.CylinderGeometry(1.78, 1.78, 0.1, 64);
+            const lidMesh = new THREE.Mesh(lidGeo, metalMaterial);
+            lidMesh.position.y = 2.45;
+            canGroup.add(lidMesh);
+
+            // Inclinar a lata ligeiramente para um aspeto dinâmico
+            canGroup.rotation.z = -0.15;
+            canGroup.rotation.x = 0.2;
+
+            scene.add(canGroup);
+
+            // 5. Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+            
+            const backLight = new THREE.DirectionalLight(0xC0752B, 1);
+            backLight.position.set(-5, 5, -5);
+            scene.add(backLight);
+
+            // 6. Interaction Variables
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX);
+                mouseY = (event.clientY - windowHalfY);
+            });
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                
+                if(window.innerWidth < 768) {
+                    camera.position.set(0, -3, 15);
+                } else {
+                    camera.position.set(4, 0, 10);
+                }
+            });
+
+            // 7. Animation Loop
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                const time = clock.getElapsedTime();
+
+                // Rotação base contínua (Roda sobre o próprio eixo Y)
+                canGroup.rotation.y += 0.005;
+
+                // Efeito flutuante suave (Senoide no eixo Y)
+                canGroup.position.y = Math.sin(time * 1.5) * 0.3;
+
+                // Interação com o rato (Rodar baseado na posição do rato com suavização/Lerp)
+                targetX = mouseX * 0.001;
+                targetY = mouseY * 0.001;
+                
+                canGroup.rotation.x += 0.05 * (targetY - canGroup.rotation.x + 0.2); // +0.2 mantém a inclinação base
+                canGroup.rotation.z += 0.05 * (targetX - canGroup.rotation.z - 0.15); // -0.15 mantém a inclinação base
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        };
+    </script>
+</body>
+</html>
