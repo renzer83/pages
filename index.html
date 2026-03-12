@@ -26,7 +26,8 @@
         .wheel-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
+            /* Aumentado o tamanho máximo do container */
+            max-width: 500px;
             margin: 0 auto;
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
         }
@@ -35,13 +36,14 @@
         .pointer {
             position: absolute;
             top: 50%;
-            right: -15px;
+            /* Ajustado a posição do ponteiro para o novo tamanho */
+            right: -20px;
             transform: translateY(-50%);
             width: 0; 
             height: 0; 
-            border-top: 20px solid transparent;
-            border-bottom: 20px solid transparent;
-            border-right: 30px solid #ff3366;
+            border-top: 25px solid transparent;
+            border-bottom: 25px solid transparent;
+            border-right: 40px solid #ff3366;
             z-index: 10;
             filter: drop-shadow(-2px 2px 5px rgba(0,0,0,0.5));
         }
@@ -112,11 +114,13 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <!-- Efeitos Sonoros (Usando URLs de CDN públicas e seguras) -->
-    <!-- Drumroll (rufar de tambores) -->
-    <audio id="audioDrumroll" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3" preload="auto"></audio>
-    <!-- Som de Vitória -->
-    <audio id="audioWin" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
+    <!-- Efeitos Sonoros (Novos links mais dramáticos e confiáveis) -->
+    <!-- Drumroll longo e dramático -->
+    <audio id="audioDrumroll" src="https://www.soundjay.com/misc/sounds/drum-roll-longer-01.mp3" preload="auto" loop></audio>
+    <!-- Som do "Tique" da roleta (criará o suspense ao abrandar) -->
+    <audio id="audioTick" src="https://www.soundjay.com/button/sounds/button-09.mp3" preload="auto"></audio>
+    <!-- Som de Vitória (Ta-Da!) -->
+    <audio id="audioWin" src="https://www.soundjay.com/human/sounds/ta-da-brass-band-01.mp3" preload="auto"></audio>
 
     <div class="text-center mb-8">
         <h1 class="text-6xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-500 drop-shadow-lg mb-2">
@@ -128,7 +132,8 @@
 
     <div class="wheel-container relative">
         <div class="pointer"></div>
-        <canvas id="rouletteCanvas" width="400" height="400" class="w-full h-auto rounded-full bg-gray-900 border-4 border-white shadow-2xl"></canvas>
+        <!-- Aumentado o tamanho do canvas para 500x500 -->
+        <canvas id="rouletteCanvas" width="500" height="500" class="w-full h-auto rounded-full bg-gray-900 border-4 border-white shadow-2xl"></canvas>
     </div>
 
     <button id="spinBtn" class="btn-spin mt-10 px-12 py-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-full text-white font-bold text-2xl uppercase tracking-wider hover:from-green-500 hover:to-blue-600 focus:outline-none">
@@ -143,7 +148,8 @@
     <div id="winnerModal" class="fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-50 overflow-hidden">
         <div class="sunburst"></div>
         <h2 class="text-3xl text-white font-bold mb-4 z-10">E o jantar de hoje é...</h2>
-        <div id="winnerText" class="winner-text text-center px-4 z-10">PIZZA!</div>
+        <!-- Adicionado o ícone no texto do vencedor também -->
+        <div id="winnerText" class="winner-text text-center px-4 z-10">PIZZA! 🍕</div>
         <button id="closeModal" class="mt-12 px-8 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition z-10 text-xl shadow-lg">
             Fechou! Partiu comer! 🚀
         </button>
@@ -164,6 +170,20 @@
             "Hotdog"
         ];
 
+        // Mapeamento de Ícones (Emojis) para cada item
+        const icones = {
+            "Mac Donalds": "🍔",
+            "Burger King": "👑",
+            "Pizza": "🍕",
+            "Hamburgueria": "🍔",
+            "Comida Japonesa": "🍣",
+            "Carne e Batata": "🥩🥔",
+            "Carne Salada": "🥩🥗",
+            "Frutas": "🍎🍇",
+            "Restaurante": "🍽️",
+            "Hotdog": "🌭"
+        };
+
         // Cores vibrantes para a roleta
         const cores = [
             '#FF595E', '#FFCA3A', '#8AC926', '#1982C4', '#6A4C93',
@@ -177,7 +197,7 @@
         if (itemSextaPassada && todosOsItens.includes(itemSextaPassada)) {
             itensDisponiveis = todosOsItens.filter(item => item !== itemSextaPassada);
             const info = document.getElementById('lastWeekInfo');
-            info.textContent = `🚫 Semana passada foi: ${itemSextaPassada} (Removido da roleta de hoje)`;
+            info.textContent = `🚫 Semana passada foi: ${itemSextaPassada} ${icones[itemSextaPassada]} (Removido da roleta de hoje)`;
             info.classList.remove('hidden');
         } else {
             itensDisponiveis = [...todosOsItens];
@@ -199,6 +219,8 @@
             const fatiaAngulo = (2 * Math.PI) / itensDisponiveis.length;
 
             for (let i = 0; i < itensDisponiveis.length; i++) {
+                const itemNome = itensDisponiveis[i];
+                const itemIcone = icones[itemNome];
                 const anguloInicio = anguloAtual + (i * fatiaAngulo);
                 const anguloFim = anguloInicio + fatiaAngulo;
 
@@ -212,7 +234,7 @@
                 ctx.strokeStyle = '#fff';
                 ctx.stroke();
 
-                // Adiciona o texto
+                // Adiciona o texto e o ícone
                 ctx.save();
                 ctx.translate(centroX, centroY);
                 // Rotaciona para o meio da fatia
@@ -220,20 +242,30 @@
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#fff';
-                ctx.font = 'bold 16px Poppins';
+                
                 // Sombra no texto para melhor leitura
                 ctx.shadowColor = 'rgba(0,0,0,0.8)';
                 ctx.shadowBlur = 4;
                 ctx.shadowOffsetX = 1;
                 ctx.shadowOffsetY = 1;
-                // Desenha o texto perto da borda
-                ctx.fillText(itensDisponiveis[i], raio - 20, 0);
+
+                // Desenha o Nome (menor e mais perto da borda)
+                ctx.font = 'bold 14px Poppins';
+                ctx.fillText(itemNome, raio - 20, 0);
+                
+                // Mede o tamanho do texto para posicionar o ícone dinamicamente
+                const larguraTexto = ctx.measureText(itemNome).width;
+
+                // Desenha o Ícone (sempre antes do texto, evitando sobreposição)
+                ctx.font = '26px Poppins';
+                ctx.fillText(itemIcone, raio - 20 - larguraTexto - 10, 0); // 10px de espaçamento
+                
                 ctx.restore();
             }
             
             // Círculo central da roleta
             ctx.beginPath();
-            ctx.arc(centroX, centroY, 25, 0, 2 * Math.PI);
+            ctx.arc(centroX, centroY, 30, 0, 2 * Math.PI);
             ctx.fillStyle = '#fff';
             ctx.fill();
             ctx.strokeStyle = '#333';
@@ -257,18 +289,23 @@
             // Prepara Áudios
             const audioDrumroll = document.getElementById('audioDrumroll');
             const audioWin = document.getElementById('audioWin');
+            
+            // Tenta tocar o áudio. Navegadores podem bloquear se não houver interação prévia.
             audioDrumroll.currentTime = 0;
-            audioDrumroll.play().catch(e => console.log("Áudio bloqueado pelo navegador", e));
+            // O atributo 'loop' no HTML garante que ele toque durante todo o giro longo
+            audioDrumroll.play().catch(e => console.warn("Áudio de giro bloqueado pelo navegador. Interaja com a página primeiro.", e));
 
-            const duracaoGiro = 8000; // 8 segundos de drama
+            // Aumentado para 12 segundos para mais drama
+            const duracaoGiro = 12000; 
             const anguloInicialGiro = anguloAtual;
             
-            // Define quantas voltas completas dará (ex: de 10 a 15 voltas) + um offset aleatório
-            const voltasExtras = Math.random() * 5 + 10; 
+            // Define quantas voltas completas dará (ex: de 15 a 20 voltas) + um offset aleatório
+            const voltasExtras = Math.random() * 5 + 15; 
             const radianosTotais = voltasExtras * 2 * Math.PI;
-            const anguloAlvo = anguloInicialGiro + radianosTotais;
 
             let tempoInicio = null;
+            const fatiaAngulo = (2 * Math.PI) / itensDisponiveis.length;
+            let ultimaFatiaPassada = Math.floor(anguloAtual / fatiaAngulo);
 
             function animarGiro(tempoAtual) {
                 if (!tempoInicio) tempoInicio = tempoAtual;
@@ -282,6 +319,18 @@
 
                 anguloAtual = anguloInicialGiro + (radianosTotais * progressoSuavizado);
                 desenharRoleta();
+
+                // --- NOVA LÓGICA DO TIQUE DE SUSPENSE ---
+                let fatiasPassadasAtual = Math.floor(anguloAtual / fatiaAngulo);
+                if (fatiasPassadasAtual !== ultimaFatiaPassada) {
+                    const audioTick = document.getElementById('audioTick');
+                    // Clonamos o áudio rapidamente para permitir que os sons se sobreponham 
+                    // quando a roleta está a girar muito rápido no início
+                    const tickClone = audioTick.cloneNode();
+                    tickClone.volume = 0.4; // Um pouco mais baixo para não ensurdecer
+                    tickClone.play().catch(e => {}); // Ignora o erro se o navegador bloquear o autoplay
+                    ultimaFatiaPassada = fatiasPassadasAtual;
+                }
 
                 if (progresso < 1) {
                     requestAnimationFrame(animarGiro);
@@ -300,24 +349,21 @@
             // Para tambores e toca música de vitória
             const audioDrumroll = document.getElementById('audioDrumroll');
             const audioWin = document.getElementById('audioWin');
+            
+            // Pausa o rufar de tambores e reseta para o início
             audioDrumroll.pause();
+            audioDrumroll.currentTime = 0;
+            
+            // Toca o som de vitória
             audioWin.currentTime = 0;
-            audioWin.play().catch(e => console.log("Áudio bloqueado", e));
+            audioWin.play().catch(e => console.warn("Áudio de vitória bloqueado.", e));
 
             // Calcular qual item ganhou
-            // Como o ponteiro está na direita (0 radianos), 
-            // precisamos ver qual fatia está atravessando o ângulo 0 ou (2 * Math.PI).
-            // A roleta girou no sentido horário (ângulo positivo).
-            // Normaliza o ângulo atual para ficar entre 0 e 2PI
             const anguloNormalizado = anguloAtual % (2 * Math.PI);
             const fatiaAngulo = (2 * Math.PI) / itensDisponiveis.length;
             
-            // Como o canvas desenha a partir de 'anguloAtual', a fatia 0 começa em 'anguloNormalizado'.
-            // Precisamos encontrar 'i' tal que: (anguloNormalizado + i * fatiaAngulo) % 2PI contemple o ângulo 0 (onde está o ponteiro).
-            // A fórmula matemática mais fácil:
             let indexGanhador = Math.floor(((2 * Math.PI) - anguloNormalizado) / fatiaAngulo) % itensDisponiveis.length;
             
-            // Por causa de possíveis arredondamentos em JS se o ângulo for exatamente 0:
             if (indexGanhador < 0) indexGanhador += itensDisponiveis.length;
 
             const comidaEscolhida = itensDisponiveis[indexGanhador];
@@ -332,8 +378,10 @@
         function mostrarResultadoExagerado(vencedor) {
             const modal = document.getElementById('winnerModal');
             const textoModal = document.getElementById('winnerText');
+            const iconeVencedor = icones[vencedor];
             
-            textoModal.textContent = vencedor.toUpperCase() + "!!!";
+            // Adiciona o ícone ao texto do resultado final
+            textoModal.textContent = `${vencedor.toUpperCase()}!!! ${iconeVencedor}`;
             modal.style.display = 'flex';
 
             // CHUVA DE CONFETES EXAGERADA!
